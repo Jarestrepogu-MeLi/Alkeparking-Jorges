@@ -4,7 +4,7 @@ import Foundation
 protocol Parkable {
     var plate: String { get }
     var checkInTime: Date { get }
-    var parkedTime: Int? { mutating get }
+    var parkedTime: Int { get }
     var discountCard: String? { get }
     var type: VehicleType { get }
     /*¿Puede cambiar el tipo del vehículo en el tiempo?¿Debe definirse como variable o constante en Vehicle?
@@ -12,9 +12,9 @@ protocol Parkable {
 }
 
 enum VehicleType {
-    case auto
+    case car
     case moto
-    case minibus
+    case miniBus
     case bus
     
     var rate: Int {
@@ -22,11 +22,11 @@ enum VehicleType {
          computed property : ciclo for, if o switch?
          Switch contempla de una vez todos los casos posibles dentrol del enum y es más limpio */
         switch self {
-        case .auto:
+        case .car:
             return 20
         case .moto:
             return 15
-        case .minibus:
+        case .miniBus:
             return 25
         case .bus:
             return 30
@@ -45,21 +45,22 @@ struct Parking {
 }
 
 struct Vehicle: Parkable, Hashable {
-
-    let type: VehicleType
     let plate: String
+    let type: VehicleType
     let checkInTime: Date
-    var parkedTime: Int?
+    var parkedTime: Int {
+        Calendar.current.dateComponents([.second], from: checkInTime, to: Date()).second ?? 0
+    }
     /* ¿Qué tipo de propiedad permite este comportamiento:
      lazy properties, computed properties o static properties?
-     Es la propiedad lazy ya que solo la necesitamos llamar para calcular la tarifa y solo es relevante en ese momento*/
+     Se usa una propiedad computada ya que esta calcula el valor cuando es llamada*/
     let discountCard: String?
     /* ¿Dónde deben agregarse las propiedades, en Parkable, Vehicle o en ambos?
-        En ambos porque en el protocolo definimos el requisito y en la estructura satisfacemos el requisito
+     En ambos porque en el protocolo definimos el requisito y en la estructura satisfacemos el requisito
      
-        La tarjeta de descuentos es opcional, es decir que un vehículo puede no tener una tarjeta y su valor será nil.
-        ¿Qué tipo de dato de Swift permite tener este comportamiento?
-        El string opcional
+     La tarjeta de descuentos es opcional, es decir que un vehículo puede no tener una tarjeta y su valor será nil.
+     ¿Qué tipo de dato de Swift permite tener este comportamiento?
+     El string opcional
      */
     
     func hash(into hasher: inout Hasher) {
@@ -71,15 +72,23 @@ struct Vehicle: Parkable, Hashable {
     }
     
     mutating func totalParkingTime() -> Int {
-        
-        return Calendar.current.dateComponents([.second], from: checkInTime, to: Date()).second ?? 0  //Segundos para probar. Recordar cambiar a minutos
-        
+        return 0
     }
 }
 
-var vehiculo = Vehicle(type: .auto, plate: "abc", checkInTime: Date(),parkedTime: 0, discountCard: "dbhjsdfb")
-DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-    print(vehiculo.totalParkingTime())
-}
+var alkeParking = Parking()
+let car = Vehicle(plate: "AA111AA", type: VehicleType.car, checkInTime: Date(), discountCard: "DISCOUNT_CARD_001")
+let moto = Vehicle(plate: "B222BBB", type: VehicleType.moto, checkInTime: Date(), discountCard: nil)
+let miniBus = Vehicle(plate: "CC333CC", type: VehicleType.miniBus, checkInTime: Date(), discountCard: nil)
+let bus = Vehicle(plate: "DD444DD", type: VehicleType.bus, checkInTime: Date(), discountCard: "DISCOUNT_CARD_002")
+alkeParking.vehicles.insert(car)
+alkeParking.vehicles.insert(moto)
+alkeParking.vehicles.insert(miniBus)
+alkeParking.vehicles.insert(bus)
+alkeParking.vehicles.forEach({ vehicle in
+    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+        print(vehicle.parkedTime)
+    }
+})
 
 
