@@ -84,17 +84,23 @@ struct Parking {
         
     }
     
-    func calculateFee(vehicle: Vehicle, parkedTime: Int) -> Int {
+    func calculateFee(vehicle: Vehicle, parkedTime: Int, hasDiscountCard: Bool) -> Int {
+        
+        let totalFee: Int
         
         if parkedTime <= 120 {
-            return vehicle.type.rate
+            totalFee = vehicle.type.rate
         } else {
             let extraTime = Double(parkedTime) - 120
             let extraFee = Int(ceil((extraTime / 15) * 5)) //Hacemos este proceso para que el resultado sea redondeado hacia arriba.
-            let totalFee = extraFee + vehicle.type.rate
-            return totalFee
+            totalFee = extraFee + vehicle.type.rate
         }
         
+        if hasDiscountCard {
+            return totalFee - Int(ceil(Double(totalFee) * 0.15))
+        } else {
+            return totalFee
+        }
     }
     
 }
@@ -177,7 +183,7 @@ for v in vehicleArray {
 //    print(error)
 //}
 
-print(alkeParking.calculateFee(vehicle: vehicle17, parkedTime: 193))
+print(alkeParking.calculateFee(vehicle: vehicle17, parkedTime: 193, hasDiscountCard: true))
 
 
 
