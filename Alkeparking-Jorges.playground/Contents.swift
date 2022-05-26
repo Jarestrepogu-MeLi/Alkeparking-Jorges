@@ -35,20 +35,14 @@ enum VehicleType {
 }
 
 struct Parking {
-    /*    ¿Por qué se define vehicles como un Set?
-     Porque un Set es más ligero que un arreglo ya que no tiene
-     en cuenta el orden de los elementos ni permite duplicados.
-     En este caso, además, resulta conveniente porque ayuda a
-     garantizar que nunca tendremos vehículos duplicados en nuestro
-     parqueadero. */
+
     var vehicles: Set<Vehicle> = []
     
     let maxSlots = 20
     
-    var winnings: (Int, Int)
+    var (totalVehicles, totalEarnings): (Int, Int) = (0, 0)
     
-    mutating func checkInVehicle(_ vehicle: Vehicle, onFinish:
-                                 (Bool) -> Void) {
+    mutating func checkInVehicle(_ vehicle: Vehicle, onFinish: (Bool) -> Void) {
         
         guard vehicles.count <= maxSlots - 1 else {
             onFinish(false)
@@ -64,25 +58,6 @@ struct Parking {
         
         onFinish(true)
         vehicles.insert(vehicle)
-    }
-    
-    mutating func checkOutVehicle(plate: String, onSuccess:(Int) -> (), onError:(String) -> ()) {
-    //La función tiene que ser mutating para poder modificar el struct.
-        
-        var currentVehicle: Vehicle
-        
-        for v in vehicles {
-            if v.plate == plate {
-                currentVehicle = v
-                let hasDiscount = currentVehicle.discountCard != nil
-                let fee = calculateFee(vehicle: currentVehicle, parkedTime: currentVehicle.parkedTime, hasDiscountCard: hasDiscount)
-                onSuccess(fee)
-                vehicles.remove(currentVehicle)
-                return
-            } else {
-                onError("Sorry, the check-out failed")
-            }
-        }
     }
     
     func calculateFee(vehicle: Vehicle, parkedTime: Int, hasDiscountCard: Bool) -> Int {
@@ -104,8 +79,38 @@ struct Parking {
         }
     }
     
-    func checkCosito() {
+}
+
+//MARK: - Check data
+extension Parking {
+    
+    mutating func checkOutVehicle(plate: String, onSuccess:(Int) -> (), onError:(String) -> ()) {
+    //La función tiene que ser mutating para poder modificar el struct.
         
+        var currentVehicle: Vehicle
+        
+        for v in vehicles {
+            if v.plate == plate {
+                currentVehicle = v
+                let hasDiscount = currentVehicle.discountCard != nil
+                let fee = calculateFee(vehicle: currentVehicle, parkedTime: currentVehicle.parkedTime, hasDiscountCard: hasDiscount)
+                totalEarnings += fee
+                onSuccess(fee)
+                vehicles.remove(currentVehicle)
+                totalVehicles += 1
+                return
+            } else {
+                onError("Sorry, the check-out failed")
+            }
+        }
+    }
+    
+    func checkEarnigns() {
+        print("\(totalVehicles) vehicles have chekced out and have earnings of $\(totalEarnings)")
+    }
+    
+    func listVehicles() {
+        print("There are \(alkeParking.vehicles.count) parked vehicles right now. Here are their plates:")
     }
     
 }
@@ -182,20 +187,30 @@ for v in vehicleArray {
     }
 }
 
-alkeParking.checkOutVehicle(plate: "AA111A") { rate in
+alkeParking.checkOutVehicle(plate: "AA111AA") { rate in
     print("Your fee is \(rate). Come back soon.")
 } onError: { error in
     print(error)
 }
 
-//print(alkeParking.calculateFee(vehicle: vehicle17, parkedTime: 193, hasDiscountCard: true))
+alkeParking.checkOutVehicle(plate: "CC333XC") { rate in
+    print("Your fee is \(rate). Come back soon.")
+} onError: { error in
+    print(error)
+}
+
+alkeParking.checkEarnigns()
+
+alkeParking.vehicles.forEach({ vehicle in
+    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+        print(vehicle.plate)
+    }
+})
 
 
-
-//alkeParking.vehicles.forEach({ vehicle in
-//    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-//        print(vehicle.parkedTime)
-//    }
-//})
-
-
+/*    ¿Por qué se define vehicles como un Set?
+ Porque un Set es más ligero que un arreglo ya que no tiene
+ en cuenta el orden de los elementos ni permite duplicados.
+ En este caso, además, resulta conveniente porque ayuda a
+ garantizar que nunca tendremos vehículos duplicados en nuestro
+ parqueadero. */
