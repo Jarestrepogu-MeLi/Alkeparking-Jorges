@@ -45,6 +45,8 @@ struct Parking {
     
     let maxSlots = 20
     
+    var winnings: (Int, Int)
+    
     mutating func checkInVehicle(_ vehicle: Vehicle, onFinish:
                                  (Bool) -> Void) {
         
@@ -64,7 +66,7 @@ struct Parking {
         vehicles.insert(vehicle)
     }
     
-    mutating func checkOutVehicle(plate: String, onSuccess:(Int) -> (), onError:(Error) -> ()) {
+    mutating func checkOutVehicle(plate: String, onSuccess:(Int) -> (), onError:(String) -> ()) {
     //La función tiene que ser mutating para poder modificar el struct.
         
         var currentVehicle: Vehicle
@@ -72,16 +74,15 @@ struct Parking {
         for v in vehicles {
             if v.plate == plate {
                 currentVehicle = v
-                onSuccess(currentVehicle.type.rate) //Mensaje de prueba
+                let hasDiscount = currentVehicle.discountCard != nil
+                let fee = calculateFee(vehicle: currentVehicle, parkedTime: currentVehicle.parkedTime, hasDiscountCard: hasDiscount)
+                onSuccess(fee)
                 vehicles.remove(currentVehicle)
                 return
             } else {
-                print("No lo hubo")
+                onError("Sorry, the check-out failed")
             }
         }
-        
-        print("Me salí")
-        
     }
     
     func calculateFee(vehicle: Vehicle, parkedTime: Int, hasDiscountCard: Bool) -> Int {
@@ -101,6 +102,10 @@ struct Parking {
         } else {
             return totalFee
         }
+    }
+    
+    func checkCosito() {
+        
     }
     
 }
@@ -177,13 +182,13 @@ for v in vehicleArray {
     }
 }
 
-//alkeParking.checkOutVehicle(plate: "AA111AA") { rate in
-//    print(rate)
-//} onError: { error in
-//    print(error)
-//}
+alkeParking.checkOutVehicle(plate: "AA111A") { rate in
+    print("Your fee is \(rate). Come back soon.")
+} onError: { error in
+    print(error)
+}
 
-print(alkeParking.calculateFee(vehicle: vehicle17, parkedTime: 193, hasDiscountCard: true))
+//print(alkeParking.calculateFee(vehicle: vehicle17, parkedTime: 193, hasDiscountCard: true))
 
 
 
