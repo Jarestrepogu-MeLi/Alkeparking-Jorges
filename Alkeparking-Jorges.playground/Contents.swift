@@ -72,7 +72,7 @@ struct Parking {
         for v in vehicles {
             if v.plate == plate {
                 currentVehicle = v
-                onSuccess(currentVehicle.type.rate)
+                onSuccess(currentVehicle.type.rate) //Mensaje de prueba
                 vehicles.remove(currentVehicle)
                 return
             } else {
@@ -82,6 +82,18 @@ struct Parking {
         
         print("Me salí")
         
+    }
+    
+    func calculateFee(vehicle: Vehicle, parkedTime: Int) -> Int {
+        
+        if parkedTime <= 120 {
+            return vehicle.type.rate
+        } else {
+            let extraTime = Double(parkedTime) - 120
+            let extraFee = Int(ceil((extraTime / 15) * 5)) //Hacemos este proceso para que el resultado sea redondeado hacia arriba.
+            let totalFee = extraFee + vehicle.type.rate
+            return totalFee
+        }
         
     }
     
@@ -159,11 +171,13 @@ for v in vehicleArray {
     }
 }
 
-alkeParking.checkOutVehicle(plate: "AA111AA") { rate in
-    print(rate)
-} onError: { error in
-    print(error)
-}
+//alkeParking.checkOutVehicle(plate: "AA111AA") { rate in
+//    print(rate)
+//} onError: { error in
+//    print(error)
+//}
+
+print(alkeParking.calculateFee(vehicle: vehicle17, parkedTime: 193))
 
 
 
