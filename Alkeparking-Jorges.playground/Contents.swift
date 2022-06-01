@@ -46,6 +46,7 @@ struct Parking {
                 return
             }
         }
+        
         onFinish(true)
         vehicles.insert(vehicle)
     }
@@ -72,26 +73,26 @@ struct Parking {
 extension Parking {
     
     mutating func checkOutVehicle(plate: String, onSuccess:(Int) -> (), onError:(String) -> ()) { //La función tiene que ser mutating para poder modificar el struct.
-        var currentVehicle: Vehicle
         
-        for v in vehicles {
-            if v.plate == plate {
-                currentVehicle = v
-                let hasDiscount = currentVehicle.discountCard != nil
-                let fee = calculateFee(vehicle: currentVehicle, parkedTime: currentVehicle.parkedTime, hasDiscountCard: hasDiscount)
-                totalEarnings += fee
-                onSuccess(fee)
-                vehicles.remove(currentVehicle)
-                totalVehicles += 1
-                return
-            } else {
-                onError("Sorry, the check-out failed")
-            }
+        let selectedVehicle = vehicles.first {$0.plate == plate}
+        
+        if let currentVehicle = selectedVehicle {
+            let hasDiscount = currentVehicle.discountCard != nil
+            let fee = calculateFee(vehicle: currentVehicle, parkedTime: currentVehicle.parkedTime, hasDiscountCard: hasDiscount)
+            totalEarnings += fee
+            onSuccess(fee)
+            vehicles.remove(currentVehicle)
+            totalVehicles += 1
+            return
+        } else {
+            onError("Sorry, the check-out failed")
+            return
         }
+        
     }
     
     func checkEarnigns() {
-        print("\(totalVehicles) vehicles have chekced out and have earnings of $\(totalEarnings)")
+        print("\(totalVehicles) vehicles have checked out and we have earned $\(totalEarnings)")
     }
     
     func listVehicles() {
