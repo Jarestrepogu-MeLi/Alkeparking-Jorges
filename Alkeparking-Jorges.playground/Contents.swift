@@ -72,7 +72,7 @@ struct Parking {
 //MARK: - Check data
 extension Parking {
     
-    mutating func checkOutVehicle(plate: String, onSuccess:(Int) -> (), onError:(String) -> ()) { //La función tiene que ser mutating para poder modificar el struct.
+    mutating func checkOutVehicle(plate: String, onSuccess:(Int) -> (), onError:(String) -> ()) {
         
         let selectedVehicle = vehicles.first {$0.plate == plate}
         
@@ -181,28 +181,34 @@ alkeParking.checkEarnigns()
 alkeParking.listVehicles()
 
 //MARK: - Respuestas
-
-/*¿Puede cambiar el tipo del vehículo en el tiempo?¿Debe definirse como variable o constante en Vehicle?
- No puede cambiar porque no tiene sentid para el objeto que el tipo pueda cambiar entonces debe ser constante.*/
-
-/* ¿Qué elemento de control de flujos podría ser útil para determinar la tarifa de cada vehículo en la
- computed property : ciclo for, if o switch?
- Switch contempla de una vez todos los casos posibles dentrol del enum y es más limpio */
-
-/*    ¿Por qué se define vehicles como un Set?
- Porque un Set es más ligero que un arreglo ya que no tiene
- en cuenta el orden de los elementos ni permite duplicados.
- En este caso, además, resulta conveniente porque ayuda a
- garantizar que nunca tendremos vehículos duplicados en nuestro
- parqueadero. */
-
-/* ¿Qué tipo de propiedad permite este comportamiento:
- lazy properties, computed properties o static properties?
- Se usa una propiedad computada ya que esta calcula el valor cuando es llamada*/
-/* ¿Dónde deben agregarse las propiedades, en Parkable, Vehicle o en ambos?
- En ambos porque en el protocolo definimos el requisito y en la estructura satisfacemos el requisito
+/*
+ ¿Por qué se define vehicles como un Set?
+  Porque un Set es más ligero que un arreglo ya que no tiene en cuenta el orden de los elementos ni permite duplicados.
+  En este caso, además, resulta conveniente porque ayuda a garantizar que nunca tendremos vehículos duplicados en nuestro
+  parqueadero.
+ 
+ ¿Qué elemento de control de flujos podría ser útil para determinar la tarifa de cada vehículo en la
+  computed property : ciclo for, if o switch?
+  Switch contempla de una vez todos los casos posibles dentrol del enum y es más limpio.
+ 
+ ¿Dónde deben agregarse las propiedades, en Parkable, Vehicle o en ambos?
+  En ambos porque en el protocolo definimos el requisito y en la estructura satisfacemos el requisito.
  
  La tarjeta de descuentos es opcional, es decir que un vehículo puede no tener una tarjeta y su valor será nil.
  ¿Qué tipo de dato de Swift permite tener este comportamiento?
- El string opcional
- */
+ El string opcional.
+  
+ El tiempo de estacionamiento dependerá de parkedTime y deberá computarse cada vez que se consulta, teniendo como referencia la fecha actual.
+ ¿Qué tipo de propiedad permite este comportamiento: lazy properties, computed properties o static properties?
+  Se usa una propiedad computada ya que esta calcula el valor cuando es llamada.
+ 
+ Se está modificando una propiedad de un struct ¿Qué consideración debe tenerse en la definición de la función?
+ La función tiene que ser mutating para poder modificar el struct.
+ 
+ ¿Qué validación debe hacerse para determinar si el vehículo tiene descuento?
+ Verificar que el valor de la tarjeta no sea nil.
+ 
+¿Puede cambiar el tipo del vehículo en el tiempo?¿Debe definirse como variable o constante en Vehicle?
+ No puede cambiar porque no tiene sentido para el objeto que el tipo pueda cambiar entonces debe ser constante.
+
+*/
