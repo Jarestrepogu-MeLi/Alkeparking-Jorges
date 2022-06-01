@@ -9,7 +9,7 @@ protocol Parkable {
     var type: VehicleType { get }
 }
 
-enum VehicleType {
+enum VehicleType: CaseIterable {
     case car
     case moto
     case miniBus
@@ -30,7 +30,7 @@ enum VehicleType {
 }
 
 struct Parking {
-
+    
     var vehicles: Set<Vehicle> = []
     let maxSlots = 20
     var (totalVehicles, totalEarnings): (Int, Int) = (0, 0)
@@ -53,7 +53,7 @@ struct Parking {
     
     func calculateFee(vehicle: Vehicle, parkedTime: Int, hasDiscountCard: Bool) -> Int {
         let totalFee: Int
-
+        
         if parkedTime <= 120 {
             totalFee = vehicle.type.rate
         } else {
@@ -98,7 +98,7 @@ extension Parking {
     func listVehicles() {
         print("There are \(alkeParking.vehicles.count) parked vehicles right now. Here are their plates:")
         alkeParking.vehicles.forEach({ vehicle in
-                print(vehicle.plate)
+            print(vehicle.plate)
         })
     }
     
@@ -119,46 +119,36 @@ struct Vehicle: Parkable, Hashable {
         hasher.combine(plate)
     }
     
-    static func ==(lhs: Vehicle, rhs: Vehicle) -> Bool {
+    static func == (lhs: Vehicle, rhs: Vehicle) -> Bool {
         return lhs.plate == rhs.plate
     }
 }
 
-//MARK: - Vehicle examples
-var alkeParking = Parking()
-let vehicle1 = Vehicle(plate: "AA111AA", type: VehicleType.car, checkInTime: Date(), discountCard: "DISCOUNT_CARD_001")
-let vehicle2 = Vehicle(plate: "B222BBB", type: VehicleType.moto, checkInTime: Date(), discountCard: nil)
-let vehicle3 = Vehicle(plate: "CC333CC", type: VehicleType.miniBus, checkInTime: Date(), discountCard: nil)
-let vehicle4 = Vehicle(plate: "DD444DD", type: VehicleType.bus, checkInTime: Date(), discountCard: "DISCOUNT_CARD_002")
-let vehicle5 = Vehicle(plate: "AA111BB", type: VehicleType.car, checkInTime: Date(), discountCard: "DISCOUNT_CARD_003")
-let vehicle6 = Vehicle(plate: "B222CCC", type: VehicleType.moto, checkInTime: Date(), discountCard: "DISCOUNT_CARD_004")
-let vehicle7 = Vehicle(plate: "CC333DD", type: VehicleType.miniBus, checkInTime: Date(), discountCard: nil)
-let vehicle8 = Vehicle(plate: "DD444EE", type: VehicleType.bus, checkInTime: Date(), discountCard: "DISCOUNT_CARD_005")
-let vehicle9 = Vehicle(plate: "AA111CC", type: VehicleType.car, checkInTime: Date(), discountCard: nil)
-let vehicle10 = Vehicle(plate: "B222DDD", type: VehicleType.moto, checkInTime: Date(), discountCard: nil)
-let vehicle11 = Vehicle(plate: "CC333EE", type: VehicleType.miniBus, checkInTime: Date(), discountCard: nil)
-let vehicle12 = Vehicle(plate: "DD444GG", type: VehicleType.bus, checkInTime: Date(), discountCard: "DISCOUNT_CARD_006")
-let vehicle13 = Vehicle(plate: "AA111DD", type: VehicleType.car, checkInTime: Date(), discountCard: "DISCOUNT_CARD_007")
-let vehicle14 = Vehicle(plate: "B222BCB", type: VehicleType.moto, checkInTime: Date(), discountCard: nil)
-let vehicle15 = Vehicle(plate: "CC333XC", type: VehicleType.miniBus, checkInTime: Date(), discountCard: nil)
-let vehicle16 = Vehicle(plate: "DD444WD", type: VehicleType.bus, checkInTime: Date(), discountCard: "DISCOUNT_CARD_008")
-let vehicle17 = Vehicle(plate: "AA111HB", type: VehicleType.car, checkInTime: Date(), discountCard: "DISCOUNT_CARD_009")
-let vehicle18 = Vehicle(plate: "B222CTC", type: VehicleType.moto, checkInTime: Date(), discountCard: nil)
-let vehicle19 = Vehicle(plate: "CC333KD", type: VehicleType.miniBus, checkInTime: Date(), discountCard: nil)
-let vehicle20 = Vehicle(plate: "DD444QE", type: VehicleType.bus, checkInTime: Date(), discountCard: "DISCOUNT_CARD_010")
-let vehicle21 = Vehicle(plate: "AA111AC", type: VehicleType.car, checkInTime: Date(), discountCard: nil)
-let vehicle22 = Vehicle(plate: "B222DMD", type: VehicleType.moto, checkInTime: Date(), discountCard: nil)
-let vehicle23 = Vehicle(plate: "CC333NE", type: VehicleType.miniBus, checkInTime: Date(), discountCard: nil)
-let vehicle24 = Vehicle(plate: "DD444RG", type: VehicleType.bus, checkInTime: Date(), discountCard: "DISCOUNT_CARD_011")
-let vehicle25 = Vehicle(plate: "AA111YD", type: VehicleType.car, checkInTime: Date(), discountCard: nil)
+//MARK: - Vehicle creator
 
-let vehicleArray: [Vehicle] = [vehicle1, vehicle2, vehicle3, vehicle4, vehicle5,
-                               vehicle6, vehicle7, vehicle8, vehicle9, vehicle10,
-                               vehicle11, vehicle12, vehicle13, vehicle14, vehicle15,
-                               vehicle16, vehicle17, vehicle18, vehicle19, vehicle20,
-                               vehicle21, vehicle22, vehicle23, vehicle24, vehicle25]
+func carCreator(amount: Int) -> [Vehicle] {
+    var vehicles: [Vehicle] = []
+    
+    while vehicles.count < amount {
+        let hasDiscount = Bool.random()
+        let newVehicle = Vehicle(plate: randomPlate(), type: VehicleType.allCases.randomElement() ?? .car, checkInTime: Date().advanced(by: (TimeInterval(Int.random(in: 0...12000))) * -1), discountCard: hasDiscount ? "DISCOUNT_CARD" : nil)
+        vehicles.append(newVehicle)
+    }
+    
+    return vehicles
+}
+
+func randomPlate() -> String {
+    let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    let numbers = "0123456789"
+    return String((0...2).map{ _ in letters.randomElement()! }) + String((0...2).map{ _ in numbers.randomElement()! })
+}
 
 //MARK: - Tests
+
+// Creation of parking and vehicles
+var alkeParking = Parking()
+let vehicleArray = carCreator(amount: 25)
 
 // Check-in test
 for v in vehicleArray {
@@ -168,14 +158,16 @@ for v in vehicleArray {
 }
 
 // Check-out test
-alkeParking.checkOutVehicle(plate: "AA111AA") { rate in
-    print("Your fee is \(rate). Come back soon.")
+print("\(vehicleArray[2].type) with plate: \(vehicleArray[2].plate), your time was: \(((vehicleArray[2].parkedTime - Int(ceil(vehicleArray[2].checkInTime.timeIntervalSinceNow))/60)/60))")
+alkeParking.checkOutVehicle(plate: vehicleArray[2].plate) { rate in
+    print("Your fee is $\(rate). Come back soon.")
 } onError: { error in
     print(error)
 }
 
-alkeParking.checkOutVehicle(plate: "CC333XC") { rate in
-    print("Your fee is \(rate). Come back soon.")
+print("\(vehicleArray[7].type) with plate: \(vehicleArray[7].plate)")
+alkeParking.checkOutVehicle(plate: vehicleArray[7].plate) { rate in
+    print("Your fee is $\(rate). Come back soon.")
 } onError: { error in
     print(error)
 }
