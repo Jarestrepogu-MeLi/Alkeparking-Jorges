@@ -58,7 +58,7 @@ struct Parking {
             totalFee = vehicle.type.rate
         } else {
             let extraTime = Double(parkedTime) - 120
-            let extraFee = Int(ceil((extraTime / 15) * 5)) //Hacemos este proceso para que el resultado sea redondeado hacia arriba.
+            let extraFee = Int(ceil(extraTime / 15) * 5) //Hacemos este proceso para que el resultado sea redondeado hacia arriba.
             totalFee = extraFee + vehicle.type.rate
         }
         if hasDiscountCard {
@@ -131,7 +131,7 @@ func carCreator(amount: Int) -> [Vehicle] {
     
     while vehicles.count < amount {
         let hasDiscount = Bool.random()
-        let newVehicle = Vehicle(plate: randomPlate(), type: VehicleType.allCases.randomElement() ?? .car, checkInTime: Date().advanced(by: (TimeInterval(Int.random(in: 0...12000))) * -1), discountCard: hasDiscount ? "DISCOUNT_CARD" : nil)
+        let newVehicle = Vehicle(plate: randomPlate(), type: VehicleType.allCases.randomElement() ?? .car, checkInTime: Date().advanced(by: (-TimeInterval(Int.random(in: 0...12000)))), discountCard: hasDiscount ? "DISCOUNT_CARD" : nil)
         vehicles.append(newVehicle)
     }
     
@@ -158,14 +158,16 @@ for v in vehicleArray {
 }
 
 // Check-out test
-print("\(vehicleArray[2].type) with plate: \(vehicleArray[2].plate), your time was: \(((vehicleArray[2].parkedTime - Int(ceil(vehicleArray[2].checkInTime.timeIntervalSinceNow))/60)/60))")
+print("\(vehicleArray[2].type) with plate: \(vehicleArray[2].plate), your time was: \(vehicleArray[2].parkedTime) minutes, \(vehicleArray[2].discountCard ?? "NO_DISCOUNT_CARD").")
+
 alkeParking.checkOutVehicle(plate: vehicleArray[2].plate) { rate in
     print("Your fee is $\(rate). Come back soon.")
 } onError: { error in
     print(error)
 }
 
-print("\(vehicleArray[7].type) with plate: \(vehicleArray[7].plate)")
+print("\(vehicleArray[7].type) with plate: \(vehicleArray[7].plate), your time was: \(vehicleArray[7].parkedTime) minutes, \(vehicleArray[7].discountCard ?? "NO_DISCOUNT_CARD").")
+
 alkeParking.checkOutVehicle(plate: vehicleArray[7].plate) { rate in
     print("Your fee is $\(rate). Come back soon.")
 } onError: { error in
